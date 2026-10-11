@@ -1,1 +1,601 @@
 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#080b14">
+<title>NEON SNAKE | AbhijeetCLI</title>
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;800&family=Inter:wght@400;600;700&display=swap');
+
+:root {
+  --bg: #080b14;
+  --panel: #101727;
+  --cyan: #00f5d4;
+  --purple: #a855f7;
+  --text: #e9f5ff;
+  --muted: #91a4bd;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  padding: 24px 14px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: var(--text);
+  font-family: Inter, Arial, sans-serif;
+  background:
+    radial-gradient(ellipse at 15% 10%, #16264b 0%, transparent 45%),
+    radial-gradient(ellipse at 90% 90%, #30134c 0%, transparent 40%),
+    var(--bg);
+}
+
+.app {
+  width: min(100%, 470px);
+  text-align: center;
+}
+
+.eyebrow {
+  color: var(--cyan);
+  font-size: 11px;
+  letter-spacing: 4px;
+  font-weight: 700;
+}
+
+h1 {
+  font-family: Orbitron, Arial, sans-serif;
+  font-size: clamp(29px, 8vw, 43px);
+  margin: 10px 0 5px;
+  letter-spacing: 2px;
+  text-shadow: 0 0 24px #00f5d466;
+}
+
+.subtitle {
+  color: var(--muted);
+  font-size: 13px;
+  margin-bottom: 23px;
+}
+
+.stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.stat {
+  background: #101727dd;
+  border: 1px solid #27344a;
+  border-radius: 13px;
+  padding: 13px;
+}
+
+.stat span {
+  display: block;
+  font-size: 10px;
+  color: var(--muted);
+  letter-spacing: 2px;
+  margin-bottom: 6px;
+}
+
+.stat strong {
+  font-family: Orbitron, Arial, sans-serif;
+  color: var(--cyan);
+  font-size: 23px;
+}
+
+.game-shell {
+  position: relative;
+  border: 1px solid #00f5d488;
+  border-radius: 15px;
+  overflow: hidden;
+  background: #080e18;
+  box-shadow: 0 0 28px #00f5d41b, 0 0 70px #a855f711;
+}
+
+canvas {
+  width: 100%;
+  height: auto;
+  display: block;
+  touch-action: none;
+}
+
+.overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: #050914cc;
+  backdrop-filter: blur(5px);
+}
+
+.overlay.hidden { display: none; }
+
+.overlay-card {
+  width: 100%;
+  padding: 23px 12px;
+  border: 1px solid #00f5d477;
+  border-radius: 15px;
+  background: #101727ed;
+}
+
+.overlay-card h2 {
+  font-family: Orbitron, Arial, sans-serif;
+  font-size: 23px;
+  color: var(--cyan);
+  margin: 0 0 10px;
+}
+
+.overlay-card p {
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.7;
+}
+
+button {
+  font: inherit;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.primary {
+  width: 100%;
+  padding: 14px;
+  margin-top: 7px;
+  border: 0;
+  border-radius: 9px;
+  color: #031411;
+  font-weight: 800;
+  letter-spacing: 1px;
+  background: var(--cyan);
+  box-shadow: 0 0 22px #00f5d433;
+}
+
+.primary:active { transform: scale(.98); }
+
+.controls {
+  margin-top: 15px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+}
+
+.small-button {
+  padding: 10px 12px;
+  border: 1px solid #34445b;
+  border-radius: 8px;
+  background: var(--panel);
+  color: var(--text);
+  font-size: 12px;
+}
+
+.hint {
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.7;
+  margin-top: 15px;
+}
+
+.mobile-controls {
+  display: grid;
+  grid-template-columns: repeat(3, 58px);
+  grid-template-rows: repeat(2, 48px);
+  gap: 6px;
+  justify-content: center;
+  margin-top: 17px;
+  touch-action: manipulation;
+}
+
+.arrow {
+  border: 1px solid #30435b;
+  border-radius: 11px;
+  color: var(--cyan);
+  background: #101727;
+  font-size: 21px;
+  font-weight: bold;
+  user-select: none;
+}
+
+.arrow:active {
+  background: #17323b;
+  border-color: var(--cyan);
+}
+
+.up { grid-column: 2; grid-row: 1; }
+.left { grid-column: 1; grid-row: 2; }
+.down { grid-column: 2; grid-row: 2; }
+.right { grid-column: 3; grid-row: 2; }
+
+footer {
+  margin-top: 24px;
+  font-size: 10px;
+  letter-spacing: 2px;
+  color: #71839b;
+}
+
+footer b { color: var(--purple); }
+
+@media (min-width: 600px) {
+  .mobile-controls { display: none; }
+}
+</style>
+</head>
+
+<body>
+<main class="app">
+  <div class="eyebrow">ABHIJEETCLI PRESENTS</div>
+  <h1>NEON SNAKE</h1>
+  <p class="subtitle">One snake. Infinite focus. Beat your best.</p>
+
+  <section class="stats">
+    <div class="stat">
+      <span>SCORE</span>
+      <strong id="score">000</strong>
+    </div>
+    <div class="stat">
+      <span>BEST</span>
+      <strong id="best">000</strong>
+    </div>
+  </section>
+
+  <div class="game-shell">
+    <canvas id="game" width="400" height="400"
+      aria-label="Neon Snake game board"></canvas>
+
+    <div class="overlay" id="overlay">
+      <div class="overlay-card">
+        <h2 id="overlayTitle">READY?</h2>
+        <p id="overlayText">
+          Collect the glowing orbs.<br>
+          Don't hit the walls or yourself.
+        </p>
+        <button class="primary" id="start">START GAME</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="controls">
+    <button class="small-button" id="pause">Ⅱ PAUSE</button>
+    <button class="small-button" id="restart">↻ RESTART</button>
+  </div>
+
+  <div class="mobile-controls" aria-label="Touch movement controls">
+    <button class="arrow up" data-dir="up" aria-label="Up">▲</button>
+    <button class="arrow left" data-dir="left" aria-label="Left">◀</button>
+    <button class="arrow down" data-dir="down" aria-label="Down">▼</button>
+    <button class="arrow right" data-dir="right" aria-label="Right">▶</button>
+  </div>
+
+  <p class="hint">
+    PC: Arrow keys or WASD · Space to pause<br>
+    Phone: Swipe on the board or use the arrows
+  </p>
+
+  <footer>DESIGNED WITH <b>◆</b> BY ABHIJEETCLI</footer>
+</main>
+
+<script>
+"use strict";
+
+const canvas = document.getElementById("game");
+const ctx = canvas.getContext("2d");
+const SIZE = 20;
+const CELLS = canvas.width / SIZE;
+
+const scoreEl = document.getElementById("score");
+const bestEl = document.getElementById("best");
+const overlay = document.getElementById("overlay");
+const titleEl = document.getElementById("overlayTitle");
+const textEl = document.getElementById("overlayText");
+const startBtn = document.getElementById("start");
+const pauseBtn = document.getElementById("pause");
+
+let snake, food, direction, nextDirection;
+let score = 0;
+let best = 0;
+let running = false;
+let paused = false;
+let gameOver = false;
+let timer = null;
+let touchStart = null;
+
+try {
+  best = Number(localStorage.getItem("neonSnakeBest")) || 0;
+} catch (_) {}
+
+bestEl.textContent = String(best).padStart(3, "0");
+
+function randomFood() {
+  let p;
+  do {
+    p = {
+      x: Math.floor(Math.random() * CELLS),
+      y: Math.floor(Math.random() * CELLS)
+    };
+  } while (snake.some(s => s.x === p.x && s.y === p.y));
+  return p;
+}
+
+function resetState() {
+  snake = [
+    { x: 9, y: 10 },
+    { x: 8, y: 10 },
+    { x: 7, y: 10 }
+  ];
+  direction = { x: 1, y: 0 };
+  nextDirection = { x: 1, y: 0 };
+  score = 0;
+  scoreEl.textContent = "000";
+  food = randomFood();
+  gameOver = false;
+  paused = false;
+  running = false;
+  pauseBtn.textContent = "Ⅱ PAUSE";
+  draw();
+}
+
+function roundedRect(x, y, w, h, r) {
+  ctx.beginPath();
+  ctx.roundRect(x, y, w, h, r);
+}
+
+function draw() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.fillStyle = "#080e18";
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  ctx.strokeStyle = "#172438";
+  ctx.lineWidth = 0.6;
+
+  for (let i = 0; i <= CELLS; i++) {
+    ctx.beginPath();
+    ctx.moveTo(i * SIZE, 0);
+    ctx.lineTo(i * SIZE, canvas.height);
+    ctx.stroke();
+
+    ctx.beginPath();
+    ctx.moveTo(0, i * SIZE);
+    ctx.lineTo(canvas.width, i * SIZE);
+    ctx.stroke();
+  }
+
+  const fx = (food.x + 0.5) * SIZE;
+  const fy = (food.y + 0.5) * SIZE;
+
+  ctx.save();
+  ctx.shadowBlur = 18;
+  ctx.shadowColor = "#ff4fd8";
+  ctx.fillStyle = "#ff4fd8";
+  ctx.beginPath();
+  ctx.arc(fx, fy, 7, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.restore();
+
+  snake.forEach((part, i) => {
+    const x = part.x * SIZE + 2;
+    const y = part.y * SIZE + 2;
+    const isHead = i === 0;
+
+    ctx.save();
+    ctx.shadowBlur = isHead ? 16 : 7;
+    ctx.shadowColor = "#00f5d4";
+    ctx.fillStyle = isHead ? "#b4fff4" : "#00d9bd";
+    roundedRect(x, y, SIZE - 4, SIZE - 4, isHead ? 6 : 5);
+    ctx.fill();
+
+    if (isHead) {
+      ctx.shadowBlur = 0;
+      ctx.fillStyle = "#08221e";
+
+      const ex = x + (direction.x === -1 ? 4 : direction.x === 1 ? 11 : 5);
+      const ey = y + (direction.y === -1 ? 4 : direction.y === 1 ? 11 : 5);
+
+      ctx.beginPath();
+      ctx.arc(ex, ey, 2, 0, Math.PI * 2);
+      ctx.arc(ex + (direction.y === 0 ? 5 : 0),
+              ey + (direction.x === 0 ? 5 : 0),
+              2, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    ctx.restore();
+  });
+}
+
+function setDirection(name) {
+  const dirs = {
+    up: { x: 0, y: -1 },
+    down: { x: 0, y: 1 },
+    left: { x: -1, y: 0 },
+    right: { x: 1, y: 0 }
+  };
+
+  const d = dirs[name];
+  if (!d || !running || paused) return;
+
+  if (d.x === -direction.x && d.y === -direction.y) return;
+  nextDirection = d;
+}
+
+function endGame() {
+  running = false;
+  gameOver = true;
+  clearTimeout(timer);
+  titleEl.textContent = "GAME OVER";
+  textEl.textContent = "Score: " + score +
+    ". Every run makes you better. Try again!";
+  startBtn.textContent = "PLAY AGAIN";
+  overlay.classList.remove("hidden");
+}
+
+function tick() {
+  if (!running || paused) return;
+
+  direction = nextDirection;
+
+  const head = {
+    x: snake[0].x + direction.x,
+    y: snake[0].y + direction.y
+  };
+
+  const eating = head.x === food.x && head.y === food.y;
+
+  if (
+    head.x < 0 || head.x >= CELLS ||
+    head.y < 0 || head.y >= CELLS
+  ) {
+    endGame();
+    return;
+  }
+
+  const bodyToCheck = eating ? snake : snake.slice(0, -1);
+  if (bodyToCheck.some(s => s.x === head.x && s.y === head.y)) {
+    endGame();
+    return;
+  }
+
+  snake.unshift(head);
+
+  if (eating) {
+    score += 10;
+    scoreEl.textContent = String(score).padStart(3, "0");
+    food = randomFood();
+
+    if (score > best) {
+      best = score;
+      bestEl.textContent = String(best).padStart(3, "0");
+      try {
+        localStorage.setItem("neonSnakeBest", String(best));
+      } catch (_) {}
+    }
+  } else {
+    snake.pop();
+  }
+
+  draw();
+
+  const speed = Math.max(65, 135 - Math.floor(score / 50) * 8);
+  timer = setTimeout(tick, speed);
+}
+
+function startGame() {
+  clearTimeout(timer);
+  if (gameOver) resetState();
+
+  overlay.classList.add("hidden");
+  running = true;
+  paused = false;
+  pauseBtn.textContent = "Ⅱ PAUSE";
+  draw();
+  timer = setTimeout(tick, 135);
+}
+
+function togglePause() {
+  if (gameOver) return;
+
+  if (!running && !paused) {
+    startGame();
+    return;
+  }
+
+  paused = !paused;
+  pauseBtn.textContent = paused ? "▶ RESUME" : "Ⅱ PAUSE";
+
+  if (paused) {
+    clearTimeout(timer);
+    titleEl.textContent = "PAUSED";
+    textEl.textContent = "Take a breath. Your next move awaits.";
+    startBtn.textContent = "RESUME";
+    overlay.classList.remove("hidden");
+  } else {
+    overlay.classList.add("hidden");
+    tick();
+  }
+}
+
+function restartGame() {
+  clearTimeout(timer);
+  resetState();
+  titleEl.textContent = "READY?";
+  textEl.innerHTML = "Collect the glowing orbs.<br>Don't hit the walls or yourself.";
+  startBtn.textContent = "START GAME";
+  overlay.classList.remove("hidden");
+}
+
+document.addEventListener("keydown", e => {
+  const keys = {
+    ArrowUp: "up", w: "up", W: "up",
+    ArrowDown: "down", s: "down", S: "down",
+    ArrowLeft: "left", a: "left", A: "left",
+    ArrowRight: "right", d: "right", D: "right"
+  };
+
+  if (keys[e.key]) {
+    e.preventDefault();
+    setDirection(keys[e.key]);
+  }
+
+  if (e.code === "Space") {
+    e.preventDefault();
+    togglePause();
+  }
+});
+
+document.querySelectorAll("[data-dir]").forEach(btn => {
+  btn.addEventListener("pointerdown", e => {
+    e.preventDefault();
+    setDirection(btn.dataset.dir);
+  });
+});
+
+canvas.addEventListener("pointerdown", e => {
+  touchStart = { x: e.clientX, y: e.clientY };
+});
+
+canvas.addEventListener("pointerup", e => {
+  if (!touchStart) return;
+
+  const dx = e.clientX - touchStart.x;
+  const dy = e.clientY - touchStart.y;
+  touchStart = null;
+
+  if (Math.max(Math.abs(dx), Math.abs(dy)) < 15) return;
+
+  if (Math.abs(dx) > Math.abs(dy)) {
+    setDirection(dx > 0 ? "right" : "left");
+  } else {
+    setDirection(dy > 0 ? "down" : "up");
+  }
+});
+
+canvas.addEventListener("pointercancel", () => {
+  touchStart = null;
+});
+
+startBtn.addEventListener("click", () => {
+  if (paused && !gameOver) {
+    paused = false;
+    overlay.classList.add("hidden");
+    pauseBtn.textContent = "Ⅱ PAUSE";
+    tick();
+  } else {
+    startGame();
+  }
+});
+
+pauseBtn.addEventListener("click", togglePause);
+document.getElementById("restart").addEventListener("click", restartGame);
+
+resetState();
+</script>
+</body>
+</html>
